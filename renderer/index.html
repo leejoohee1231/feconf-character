@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mascot</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="stage">
+      <!-- 말풍선 (알림) -->
+      <div id="bubble" class="hidden">
+        <div id="bubble-title"></div>
+        <div id="bubble-msg"></div>
+      </div>
+
+      <!-- DND 표시 -->
+      <div id="dnd-badge" class="hidden">🔕</div>
+
+      <!-- 캐릭터 -->
+      <canvas id="cat" width="64" height="64"></canvas>
+
+      <!-- 그림자 -->
+      <div id="shadow"></div>
+    </div>
+    <script src="mascot.js"></script>
+  </body>
+</html>

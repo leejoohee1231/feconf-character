@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dev Preview</title>
+    <link rel="stylesheet" href="dev.css" />
+  </head>
+  <body>
+    <div id="panel">
+      <header class="drag">
+        <span>🛠 미리보기 <span class="tag">DEV</span></span>
+        <button id="hide" class="no-drag" title="닫고 실시간 복귀">✕</button>
+      </header>
+
+      <div class="body">
+        <div class="group">
+          <div class="label">Phase</div>
+          <div class="seg" id="phase-seg">
+            <button data-phase="">자동</button>
+            <button data-phase="before">행사 전</button>
+            <button data-phase="dayof">당일</button>
+            <button data-phase="after">이후</button>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="label">
+            모의 시각
+            <button id="realtime" class="mini">● 실시간</button>
+          </div>
+          <input type="datetime-local" id="dt" />
+          <div class="slider-row">
+            <input type="range" id="slider" min="0" max="1439" step="1" />
+            <span id="time-label" class="time-label">--:--</span>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="label">프리셋 (시간 점프)</div>
+          <div class="chips" id="chips"></div>
+        </div>
+
+        <div id="readout">
+          <div>결과 phase: <b id="ro-phase">-</b></div>
+          <div id="ro-time">-</div>
+        </div>
+      </div>
+    </div>
+    <script src="dev.js"></script>
+  </body>
+</html>

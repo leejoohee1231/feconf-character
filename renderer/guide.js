@@ -1,0 +1,245 @@
+'use strict';
+
+// 컨퍼런스 안내 패널 — 행사 전 / 당일 / 이후 3가지 상태
+// 시간은 main 이 넘겨준 data.now 를 기준으로 흐름(simNow) → 개발용 모의 시각 지원
+
+const contentEl = document.getElementById('content');
+const clockEl = document.getElementById('clock');
+const titleEl = document.getElementById('title');
+const subtitleEl = document.getElementById('subtitle');
+const footerEl = document.getElementById('footer-text');
+
+let data = { items: [], conference: {}, phase: 'dayof' };
+
+// ---- 시뮬레이션 시계 ---------------------------------------------------------
+let baseNow = Date.now();
+let baseMono = performance.now();
+function setBase(d) {
+  baseNow = d && typeof d.now === 'number' ? d.now : Date.now();
+  baseMono = performance.now();
+}
+function simNow() {
+  return baseNow + (performance.now() - baseMono);
+}
+
+const WD = ['일', '월', '화', '수', '목', '금', '토'];
+const pad = (n) => String(n).padStart(2, '0');
+const hhmm = (ts) => {
+  const d = new Date(ts);
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+function startOfDay(ds) {
+  const d = ds != null ? new Date(ds) : new Date();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+}
+function fmtDate(ds) {
+  const d = new Date(ds);
+  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} (${WD[d.getDay()]})`;
+}
+function dateRange(conf) {
+  const s = conf.startDate || conf.date;
+  const e = conf.endDate || s;
+  if (!s) return '';
+  if (startOfDay(s) === startOfDay(e)) return fmtDate(s);
+  return `${fmtDate(s)} ~ ${fmtDate(e)}`;
+}
+function ddayCount(conf) {
+  const start = startOfDay(conf.startDate || conf.date);
+  return Math.round((start - startOfDay(simNow())) / 86400000);
+}
+function fmtEta(ms) {
+  const min = Math.round(ms / 60000);
+  if (min <= 0) return '지금';
+  if (min < 60) return `${min}분 후`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m ? `${h}시간 ${m}분 후` : `${h}시간 후`;
+}
+function statusOf(item, now) {
+  const t = new Date(item.time).getTime();
+  const lead = (item.leadMinutes != null ? item.leadMinutes : 5) * 60000;
+  if (now >= t) return { key: 'done', label: '종료' };
+  if (now >= t - lead) return { key: 'soon', label: '곧 시작' };
+  if (now >= t - 30 * 60000) return { key: 'upcoming', label: '예정' };
+  return { key: 'scheduled', label: '예정' };
+}
+
+function openLink(url) {
+  if (url && window.mascot && window.mascot.openExternal) window.mascot.openExternal(url);
+}
+
+// 디스코드 카드 (전/후 공통)
+function discordCard(conf) {
+  const d = conf.discord;
+  if (!d || !d.url) return null;
+  const card = el('button', 'link-card discord');
+  card.appendChild(el('span', 'lc-icon', '💬'));
+  const body = el('div', 'lc-body');
+  body.appendChild(el('div', 'lc-title', 'Discord 커뮤니티'));
+  if (d.note) body.appendChild(el('div', 'lc-sub', d.note));
+  card.appendChild(body);
+  card.appendChild(el('span', 'lc-arrow', '↗'));
+  card.addEventListener('click', () => openLink(d.url));
+  return card;
+}
+
+// -------------------- 행사 전 --------------------
+function renderBefore(conf) {
+  subtitleEl.textContent = '행사 준비중';
+  footerEl.textContent = '디스코드에서 미리 만나요 👋';
+
+  const d = ddayCount(conf);
+  const hero = el('div', 'hero');
+  hero.appendChild(el('div', 'hero-label', '행사까지'));
+  hero.appendChild(el('div', 'hero-dday', d <= 0 ? 'D-DAY' : `D-${d}`));
+  contentEl.appendChild(hero);
+
+  const info = el('div', 'info-list');
+  const rows = [
+    ['📅', dateRange(conf)],
+    ['📍', conf.venue],
+    ['🗺️', conf.address],
+  ];
+  for (const [icon, val] of rows) {
+    if (!val) continue;
+    const r = el('div', 'info-row');
+    r.appendChild(el('span', 'info-icon', icon));
+    r.appendChild(el('span', 'info-val', val));
+    info.appendChild(r);
+  }
+  contentEl.appendChild(info);
+
+  if (data.items && data.items.length) {
+    contentEl.appendChild(
+      el('div', 'session-count', `총 ${data.items.length}개 세션이 준비되고 있어요`)
+    );
+  }
+
+  const dc = discordCard(conf);
+  if (dc) contentEl.appendChild(dc);
+}
+
+// -------------------- 당일 --------------------
+function renderDayof(conf) {
+  subtitleEl.textContent = data.subtitle || '오늘의 세션';
+  footerEl.textContent = '마스코트를 다시 클릭하면 닫혀요';
+
+  const now = simNow();
+  const items = [...(data.items || [])].sort((a, b) => new Date(a.time) - new Date(b.time));
+
+  // 다음 세션 배너
+  const next = items.find((it) => new Date(it.time).getTime() > now);
+  if (next) {
+    const banner = el('div', 'next-banner');
+    banner.appendChild(el('span', 'dot'));
+    const b = el('div');
+    b.appendChild(el('div', 'nb-label', '다음 세션'));
+    b.appendChild(el('div', 'nb-title', next.title || '다음 세션'));
+    banner.appendChild(b);
+    banner.appendChild(el('span', 'nb-eta', fmtEta(new Date(next.time).getTime() - now)));
+    contentEl.appendChild(banner);
+  }
+
+  const list = el('ul', 'list');
+  if (!items.length) {
+    list.appendChild(el('li', 'empty', '등록된 세션이 없어요.'));
+  }
+  for (const it of items) {
+    const st = statusOf(it, now);
+    const li = el('li', 'item ' + (st.key === 'soon' ? 'soon' : st.key === 'done' ? 'done' : ''));
+    li.appendChild(el('div', 'time', hhmm(new Date(it.time).getTime())));
+    const body = el('div', 'body');
+    body.appendChild(el('div', 't-title', it.title || '세션'));
+    if (it.message) body.appendChild(el('div', 't-msg', it.message));
+    li.appendChild(body);
+    li.appendChild(el('span', 'badge ' + st.key, st.label));
+    list.appendChild(li);
+  }
+  contentEl.appendChild(list);
+}
+
+// -------------------- 행사 후 --------------------
+function renderAfter(conf) {
+  subtitleEl.textContent = '행사가 마무리됐어요';
+  footerEl.textContent = '후기 한 줄이면 큰 힘이 돼요 🙏';
+
+  const thanks = el('div', 'thanks');
+  thanks.appendChild(el('div', 'thanks-emoji', '🎉'));
+  thanks.appendChild(el('div', 'thanks-title', '함께해 주셔서 고마워요!'));
+  thanks.appendChild(el('div', 'thanks-sub', '오늘 하루 어떠셨나요? 짧은 후기를 남겨주세요.'));
+  contentEl.appendChild(thanks);
+
+  if (conf.reviewUrl) {
+    const btn = el('button', 'cta', '✍️  후기 남기기');
+    btn.addEventListener('click', () => openLink(conf.reviewUrl));
+    contentEl.appendChild(btn);
+    if (conf.reviewNote) contentEl.appendChild(el('div', 'cta-note', conf.reviewNote));
+  }
+
+  const dc = discordCard(conf);
+  if (dc) {
+    contentEl.appendChild(el('div', 'after-more', '커뮤니티에서 계속 이야기해요'));
+    contentEl.appendChild(dc);
+  }
+}
+
+// -------------------- 렌더 디스패치 --------------------
+function render() {
+  const conf = data.conference || {};
+  titleEl.textContent = data.title || conf.name || '컨퍼런스 안내';
+  contentEl.innerHTML = '';
+  contentEl.className = 'phase-' + (data.phase || 'dayof');
+
+  if (data.phase === 'before') renderBefore(conf);
+  else if (data.phase === 'after') renderAfter(conf);
+  else renderDayof(conf);
+
+  tickClock();
+}
+
+function tickClock() {
+  const d = new Date(simNow());
+  clockEl.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+async function refresh() {
+  if (window.mascot && window.mascot.guideGetData) {
+    try {
+      const d = await window.mascot.guideGetData();
+      if (d) {
+        data = d;
+        setBase(d);
+      }
+    } catch (_) {}
+  }
+  render();
+}
+
+document.getElementById('close').addEventListener('click', () => {
+  if (window.mascot && window.mascot.guideClose) window.mascot.guideClose();
+});
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && window.mascot && window.mascot.guideClose) window.mascot.guideClose();
+});
+
+if (window.mascot && window.mascot.onGuideData) {
+  window.mascot.onGuideData((d) => {
+    if (d) {
+      data = d;
+      setBase(d);
+    }
+    render();
+  });
+}
+
+refresh();
+setInterval(tickClock, 1000); // 시계는 매초
+setInterval(render, 15000); // 상태/카운트다운은 15초마다 갱신
