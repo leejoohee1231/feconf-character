@@ -59,6 +59,16 @@ let mockNow = null;        // 개발용 모의 시각(ms), null = 실시간
 let devWin = null;
 const scheduledTimers = [];
 
+// 코딩 중 걷기(반대 모서리로 이동) 상태
+let mover = null;
+let walkTarget = null;      // { x, y } 목표 위치
+let walkGoal = null;        // 'away'(반대 모서리) | 'home'(제자리)
+let lastDir = -1;           // 바라보는 방향(-1 왼쪽, +1 오른쪽)
+let workingUntil = 0;       // 이 시각까지 코딩중으로 간주
+let returnTimer = null;
+const WALK_SPEED = 4;       // 틱당 이동 px
+const WALK_TICK = 33;       // ~30fps
+
 // ---------------------------------------------------------------------------
 // 창 위치 계산
 // ---------------------------------------------------------------------------
@@ -294,6 +304,89 @@ function scheduleSleep() {
   }, CONFIG.idleSleepMs);
 }
 
+// ---------------------------------------------------------------------------
+// 코딩 중 걷기 — 반대 모서리로 이동, 멈추면 제자리 복귀
+// ---------------------------------------------------------------------------
+function cornerXY(corner) {
+  const wa = screen.getPrimaryDisplay().workArea;
+  const { width: w, height: h, margin: m } = CONFIG;
+  const x = corner.includes('left') ? wa.x + m : wa.x + wa.width - w - m;
+  const y = corner.includes('top') ? wa.y + m : wa.y + wa.height - h - m;
+  return { x: Math.round(x), y: Math.round(y) };
+}
+function oppositeCorner(corner) {
+  const lr = corner.includes('left') ? 'right' : 'left';
+  const tb = corner.includes('top') ? 'bottom' : 'top';
+  return `${tb}-${lr}`;
+}
+
+function startMover() {
+  if (!mover) mover = setInterval(stepWalk, WALK_TICK);
+}
+function stopMover() {
+  if (mover) {
+    clearInterval(mover);
+    mover = null;
+  }
+}
+function stepWalk() {
+  if (!win || win.isDestroyed() || !walkTarget) {
+    stopMover();
+    return;
+  }
+  const [x, y] = win.getPosition();
+  const dx = walkTarget.x - x;
+  const dy = walkTarget.y - y;
+  const dist = Math.hypot(dx, dy);
+  if (dist <= WALK_SPEED) {
+    win.setPosition(walkTarget.x, walkTarget.y);
+    stopMover();
+    onArrive();
+    return;
+  }
+  win.setPosition(
+    Math.round(x + (dx / dist) * WALK_SPEED),
+    Math.round(y + (dy / dist) * WALK_SPEED)
+  );
+  const dir = dx < 0 ? -1 : 1;
+  if (dir !== lastDir) {
+    lastDir = dir;
+    sendToMascot('mascot:state', { state: 'walking', dir });
+  }
+  if (guideWin && guideWin.isVisible()) positionGuide(); // 안내 패널 따라오기
+}
+function onArrive() {
+  walkTarget = null;
+  if (walkGoal === 'home') {
+    walkGoal = null;
+    sendToMascot('mascot:state', { state: 'idle' });
+    scheduleSleep();
+  } else {
+    // 반대 모서리 도착 → 그 자리에서 집중
+    sendToMascot('mascot:state', { state: 'working' });
+  }
+}
+function startCodingWalk(data = {}) {
+  const linger = data.lingerMs || data.ttl || 6000;
+  workingUntil = Date.now() + linger;
+  if (walkGoal !== 'away') {
+    walkGoal = 'away';
+    walkTarget = cornerXY(oppositeCorner(CONFIG.corner));
+    sendToMascot('mascot:state', { state: 'walking', dir: lastDir });
+    startMover();
+  }
+  if (returnTimer) clearTimeout(returnTimer);
+  returnTimer = setTimeout(() => {
+    if (Date.now() >= workingUntil) returnHome();
+  }, linger + 60);
+}
+function returnHome() {
+  walkGoal = 'home';
+  walkTarget = cornerXY(CONFIG.corner);
+  sendToMascot('mascot:state', { state: 'walking', dir: lastDir });
+  startMover();
+}
+
 // 외부에서 들어온 활동/알림을 처리하는 공통 함수
 function handleEvent(kind, data = {}) {
   scheduleSleep();
@@ -315,8 +408,8 @@ function handleEvent(kind, data = {}) {
       } catch (_) {}
     }
   } else if (kind === 'activity') {
-    // 타이핑/코딩 등 사용자 활동 → 작업중 상태
-    sendToMascot('mascot:state', { state: data.state || 'working', ttl: data.ttl || 4000 });
+    // 타이핑/코딩 등 사용자 활동 → 반대 모서리로 걸어감 (멈추면 복귀)
+    startCodingWalk(data);
   } else if (kind === 'state') {
     sendToMascot('mascot:state', { state: data.state, ttl: data.ttl });
   }
@@ -375,6 +468,12 @@ function startServer() {
         doCapture(win);
       }
       return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/debug/pos') {
+      const pos = win && !win.isDestroyed() ? win.getPosition() : null;
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ pos, walkGoal, walkTarget }));
     }
 
     if (req.method === 'GET' && url.pathname === '/health') {
@@ -605,5 +704,7 @@ app.on('before-quit', () => {
 
 app.on('will-quit', () => {
   globalShortcut.unregisterAll();
+  stopMover();
+  if (returnTimer) clearTimeout(returnTimer);
   if (server) server.close();
 });

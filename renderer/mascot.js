@@ -50,9 +50,11 @@ function tri(cx, apexY, h, c) {
 }
 
 // ---- 상태 관리 --------------------------------------------------------------
-let baseState = 'idle'; // idle | sleeping (지속 상태)
+let baseState = 'idle'; // idle | sleeping | walking | working (지속 상태)
 let temp = null; // { state, until }  (일시 상태)
 let lastLook = { t: 0, dx: 0, dy: 0 };
+let walkDir = -1; // 걷는 방향(-1 왼쪽, +1 오른쪽)
+const BASE_STATES = ['idle', 'sleeping', 'walking', 'working'];
 
 function effectiveState() {
   if (temp && performance.now() < temp.until) return temp.state;
@@ -97,13 +99,21 @@ function drawCat(now) {
     bobAmp = 0.8;
     tailSpeed = 0.5;
     tailAmp = 1;
+  } else if (state === 'walking') {
+    bobSpeed = 8;
+    bobAmp = 1.6;
+    tailSpeed = 9;
+    tailAmp = 3;
   }
 
   const bob = Math.round(Math.sin(t * bobSpeed) * bobAmp);
   const breathe = state === 'sleeping' ? Math.round(Math.sin(t * 0.9) * 1) : 0;
+  // 걷기: 좌우 뒤뚱 + 발 번갈아
+  const gait = state === 'walking' ? Math.sin(t * 8) : 0;
+  const waddle = state === 'walking' ? Math.round(gait * 2) : 0;
 
   ctx.save();
-  ctx.translate(0, bob);
+  ctx.translate(waddle, bob);
 
   // 그림자 반응
   const sScale = 1 - bob * 0.03;
@@ -134,9 +144,11 @@ function drawCat(now) {
   clr(26, 44, 1, 1);
   clr(37, 44, 1, 1);
 
-  // 앞발
-  block(23, 52, 7, 6, C.body);
-  block(34, 52, 7, 6, C.body);
+  // 앞발 (walking 시 번갈아 스텝)
+  const pawLy = 52 - (gait > 0.2 ? 2 : 0);
+  const pawRy = 52 - (gait < -0.2 ? 2 : 0);
+  block(23, pawLy, 7, 6, C.body);
+  block(34, pawRy, 7, 6, C.body);
 
   // ============ 귀 ============
   tri(23, 6, 8, C.outline);
@@ -179,13 +191,17 @@ function drawFace(state, t) {
     rx = 36,
     ey = 21; // 눈 기준 좌표
 
-  // 깜빡임 (idle/working 에서만)
-  const blink = (state === 'idle' || state === 'working') && t % 4.2 < 0.14;
+  // 깜빡임 (idle/working/walking 에서만)
+  const blink = (state === 'idle' || state === 'working' || state === 'walking') && t % 4.2 < 0.14;
 
   if (state === 'sleeping' || blink) {
     // 감은 눈 (부드러운 곡선)
     closedEye(lx);
     closedEye(rx);
+  } else if (state === 'walking') {
+    // 걷는 방향을 바라봄
+    openEye(lx, ey, walkDir);
+    openEye(rx, ey, walkDir);
   } else if (state === 'happy' || state === 'notify') {
     happyEye(lx, ey);
     happyEye(rx, ey);
@@ -319,9 +335,10 @@ bubble.addEventListener('click', hideBubble);
 // ===========================================================================
 if (window.mascot) {
   window.mascot.onNotify((d) => showBubble(d));
-  window.mascot.onState(({ state, ttl }) => {
-    if (state === 'sleeping' || state === 'idle') {
-      baseState = state;
+  window.mascot.onState(({ state, ttl, dir }) => {
+    if (dir != null) walkDir = dir;
+    if (!ttl && BASE_STATES.includes(state)) {
+      baseState = state; // 지속 상태 전환
     } else {
       setTemp(state, ttl || 3000);
       if (baseState === 'sleeping') baseState = 'idle'; // 깨우기
