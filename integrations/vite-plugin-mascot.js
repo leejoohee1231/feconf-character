@@ -33,25 +33,26 @@ function mascotPlugin(options = {}) {
       isBuild = env.command === 'build';
     },
 
+    // 훅에서 전송 Promise 를 return → Vite 가 기다려 주므로
+    // 빌드가 에러로 즉시 종료돼도 실패 알림이 확실히 전송됨
     buildStart() {
-      if (isBuild) {
-        hadError = false;
-        buildStartAt = Date.now();
-        m.building('vite');
-      }
+      if (!isBuild) return;
+      hadError = false;
+      buildStartAt = Date.now();
+      return m.building('vite');
     },
 
     buildEnd(err) {
       if (isBuild && err) {
         hadError = true;
-        m.fail('🚨 빌드 실패', String((err && err.message) || err).split('\n')[0].slice(0, 120));
+        return m.fail('빌드 실패', String((err && err.message) || err).split('\n')[0].slice(0, 120));
       }
     },
 
     closeBundle() {
       if (isBuild && !hadError) {
         const dur = `${((Date.now() - buildStartAt) / 1000).toFixed(1)}s`;
-        m.success('✅ 빌드 완료', dur);
+        return m.success('빌드 완료', dur);
       }
     },
 
@@ -68,7 +69,7 @@ function mascotPlugin(options = {}) {
               (server.config && server.config.server && server.config.server.port) || port;
             url = `localhost:${cfgPort}`;
           } catch (_) {}
-          m.ready('🚀 dev 서버 준비됐어요', url ? `${url} 열림` : '');
+          m.ready('dev 서버 준비됐어요', url ? `${url} 열림` : '');
         });
     },
 
@@ -79,7 +80,7 @@ function mascotPlugin(options = {}) {
       if (hmrTimer) clearTimeout(hmrTimer);
       const file = ctx && ctx.file ? ctx.file.split('/').pop() : '';
       hmrTimer = setTimeout(() => {
-        m.success('✅ 적용됨', file ? `${file} 변경 반영` : 'HMR 반영');
+        m.success('적용됨', file ? `${file} 변경 반영` : 'HMR 반영');
       }, 350);
     },
   };
