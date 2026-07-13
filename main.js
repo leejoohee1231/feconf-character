@@ -22,15 +22,15 @@ const http = require('http');
 const DEFAULT_CONFIG = {
   port: 7842,          // 웹훅 HTTP 서버 포트
   token: '',           // 설정 시 웹훅 요청에 x-token 헤더 필요 (빈 값이면 인증 없음)
-  width: 250,
-  height: 240,
+  width: 360,
+  height: 320,
   margin: 24,          // 화면 모서리로부터 여백
   corner: 'bottom-right', // bottom-right | bottom-left | top-right | top-left
   idleSleepMs: 90000,  // 이 시간 동안 이벤트 없으면 잠자기
   guideTitle: '컨퍼런스 안내',
   guideSubtitle: '오늘의 세션',
-  guideWidth: 360,   // 클릭 시 뜨는 스타버스트 팝업 크기
-  guideHeight: 260,
+  guideWidth: 200,   // 클릭 시 뜨는 스타버스트 팝업 (말풍선과 비슷한 크기)
+  guideHeight: 165,
 };
 
 function loadConfig() {
@@ -155,14 +155,10 @@ function positionGuide() {
   const wa = screen.getPrimaryDisplay().workArea;
   const gw = CONFIG.guideWidth;
   const gh = CONFIG.guideHeight;
-  const gap = 8;
+  // 말풍선(우상단)과 같은 자리: 마스코트 창의 오른쪽 위에 겹치게
+  let gx = mx + CONFIG.width - gw - 8;
+  let gy = my + 12;
 
-  // 기본: 마스코트 왼쪽에 배치, 하단 정렬
-  let gx = mx - gw + 20; // 살짝 겹치게
-  let gy = my + CONFIG.height - gh;
-
-  // 왼쪽 공간 부족하면 오른쪽에
-  if (gx < wa.x + 4) gx = mx + CONFIG.width - 20;
   // 화면 경계 클램프
   gx = Math.max(wa.x + 4, Math.min(gx, wa.x + wa.width - gw - 4));
   gy = Math.max(wa.y + 4, Math.min(gy, wa.y + wa.height - gh - 4));

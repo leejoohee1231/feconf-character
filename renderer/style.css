@@ -43,7 +43,7 @@ body {
 /* 캐릭터 래퍼 — 상태별 움직임(transform)은 JS 가 매 프레임 적용 */
 #char {
   position: relative;
-  width: 113px; /* 기존 188 대비 40% 축소 */
+  width: 301px; /* 달팽이:말풍선 = 7:4 (말풍선 172 기준 172×7/4) */
   display: flex;
   justify-content: center;
   z-index: 2;
@@ -52,7 +52,7 @@ body {
 }
 
 #cat {
-  width: 113px; /* 40% 축소 */
+  width: 301px; /* 7:4 비율 */
   height: auto;
   -webkit-app-region: no-drag;
   cursor: grab;
@@ -107,9 +107,9 @@ body {
 }
 
 #shadow {
-  width: 58px;
-  height: 10px;
-  margin-top: -8px;
+  width: 154px;
+  height: 16px;
+  margin-top: -12px;
   border-radius: 50%;
   background: radial-gradient(
     ellipse at center,
