@@ -188,9 +188,9 @@ body {
 /* -------- 클릭 팝업 (Frame 3: 분홍 D-day 알약 + 밑줄 링크 말풍선) -------- */
 #click-bubble {
   position: fixed;
-  top: 78px;
+  top: 100px;
   right: 8px;
-  width: 292px;
+  width: 158px; /* 텍스트에 핏하게 (디스코드 제거) */
   z-index: 6;
   transform-origin: 14% 92%; /* 꼬리(좌하단)에서 팝업 */
   animation: pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -224,7 +224,7 @@ body {
 }
 #cb-dday {
   font-weight: 700;
-  font-size: 15px;
+  font-size: 16px;
   color: #141116; /* '행사까지'는 기본색 */
   white-space: nowrap;
 }

@@ -208,15 +208,17 @@ async function toggleClickBubble() {
   }
   const conf = data.conference || {};
   setDdayContent(conf, data.now || Date.now());
-  const url = conf.discord && conf.discord.url;
-  if (url) {
-    cbDiscord.style.display = '';
-    cbDiscord.onclick = (e) => {
-      e.stopPropagation();
-      if (window.mascot && window.mascot.openExternal) window.mascot.openExternal(url);
-    };
-  } else {
-    cbDiscord.style.display = 'none';
+  if (cbDiscord) {
+    const url = conf.discord && conf.discord.url;
+    if (url) {
+      cbDiscord.style.display = '';
+      cbDiscord.onclick = (e) => {
+        e.stopPropagation();
+        if (window.mascot && window.mascot.openExternal) window.mascot.openExternal(url);
+      };
+    } else {
+      cbDiscord.style.display = 'none';
+    }
   }
   clickBubble.classList.remove('hidden');
   void clickBubble.offsetWidth; // pop 애니메이션 재생
