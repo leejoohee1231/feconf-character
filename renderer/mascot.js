@@ -106,13 +106,8 @@ const LEVEL_ICON = { info: '💬', success: '✅', warn: '⚠️', urgent: '🚨
 
 function showBubble({ title, message, level }) {
   bubble.className = 'level-' + (level || 'info');
-  bTitle.innerHTML = '';
-  const icon = document.createElement('span');
-  icon.textContent = LEVEL_ICON[level] || '💬';
-  const txt = document.createElement('span');
-  txt.textContent = title || '알림';
-  bTitle.appendChild(icon);
-  bTitle.appendChild(txt);
+  // 제목을 쓴 그대로 표시 (이모지는 문구에 직접 넣기)
+  bTitle.textContent = title || '알림';
   bMsg.textContent = message || '';
   bMsg.style.display = message ? 'block' : 'none';
   bubble.classList.remove('hidden');

@@ -45,14 +45,14 @@ function mascotPlugin(options = {}) {
     buildEnd(err) {
       if (isBuild && err) {
         hadError = true;
-        return m.fail('빌드 실패', String((err && err.message) || err).split('\n')[0].slice(0, 120));
+        return m.fail('ㅂ ㅣㄹ드 Fail...', String((err && err.message) || err).split('\n')[0].slice(0, 120));
       }
     },
 
     closeBundle() {
       if (isBuild && !hadError) {
         const dur = `${((Date.now() - buildStartAt) / 1000).toFixed(1)}s`;
-        return m.success('빌드 완료', dur);
+        return m.success('⭐️ 야호~빌드 완료~🎵⭐️', dur);
       }
     },
 
@@ -69,7 +69,7 @@ function mascotPlugin(options = {}) {
               (server.config && server.config.server && server.config.server.port) || port;
             url = `localhost:${cfgPort}`;
           } catch (_) {}
-          m.ready('dev 서버 준비됐어요', url ? `${url} 열림` : '');
+          m.ready('⭐️ dev 서버 준비 완료~! ⭐️', url ? `${url} 열림` : '');
         });
     },
 
@@ -80,7 +80,7 @@ function mascotPlugin(options = {}) {
       if (hmrTimer) clearTimeout(hmrTimer);
       const file = ctx && ctx.file ? ctx.file.split('/').pop() : '';
       hmrTimer = setTimeout(() => {
-        m.success('적용됨', file ? `${file} 변경 반영` : 'HMR 반영');
+        m.success('⭐️ 야호~적용 완료~🎵⭐️', file ? `${file} 변경 반영` : 'HMR 반영');
       }, 350);
     },
   };

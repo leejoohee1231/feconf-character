@@ -57,7 +57,7 @@ function state(name) {
 // 말풍선이 레벨별 아이콘(💬/✅/⚠️/🚨)을 자동으로 붙이므로 title 엔 이모지 생략
 function building(label) {
   return post('/notify', {
-    title: '빌드 중',
+    title: '빌드 드갑니다',
     message: label ? `${label} 컴파일 중…` : '컴파일 중…',
     level: 'info',
   }).then(() => state('working'));
