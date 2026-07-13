@@ -178,13 +178,21 @@ function startOfDay(ts) {
   const d = new Date(ts);
   return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 }
-function ddayText(conf, now) {
+// "행사까지 D-XX" (D-XX만 핑크) / 당일 "행사까지 D-DAY" / 이후 "행사 종료ㅠㅠ"
+function setDdayContent(conf, now) {
   const s = conf.startDate || conf.date;
-  if (!s) return 'D-–';
+  if (!s) {
+    cbDday.textContent = '';
+    return;
+  }
   const diff = Math.round((startOfDay(new Date(s).getTime()) - startOfDay(now)) / 86400000);
-  if (diff > 0) return 'D-' + diff;
-  if (diff === 0) return 'D-DAY';
-  return '종료';
+  if (diff > 0) {
+    cbDday.innerHTML = '행사까지 <span class="dday-num">D-' + diff + '</span>';
+  } else if (diff === 0) {
+    cbDday.innerHTML = '행사까지 <span class="dday-num">D-DAY</span>';
+  } else {
+    cbDday.textContent = '행사 종료ㅠㅠ';
+  }
 }
 async function toggleClickBubble() {
   if (!clickBubble.classList.contains('hidden')) {
@@ -199,7 +207,7 @@ async function toggleClickBubble() {
     } catch (_) {}
   }
   const conf = data.conference || {};
-  cbDday.textContent = ddayText(conf, data.now || Date.now());
+  setDdayContent(conf, data.now || Date.now());
   const url = conf.discord && conf.discord.url;
   if (url) {
     cbDiscord.style.display = '';

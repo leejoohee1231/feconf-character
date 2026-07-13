@@ -190,7 +190,7 @@ body {
   position: fixed;
   top: 78px;
   right: 8px;
-  width: 250px;
+  width: 292px;
   z-index: 6;
   transform-origin: 14% 92%; /* 꼬리(좌하단)에서 팝업 */
   animation: pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -224,15 +224,17 @@ body {
 }
 #cb-dday {
   font-weight: 700;
-  font-size: 17px;
-  letter-spacing: 1px;
-  color: #ff3ce5;
+  font-size: 15px;
+  color: #141116; /* '행사까지'는 기본색 */
   white-space: nowrap;
+}
+#cb-dday .dday-num {
+  color: #ff3ce5; /* D-XX 만 핑크 */
 }
 #cb-discord {
   font-family: inherit;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
   color: #141116;
   background: none;
   border: none;
