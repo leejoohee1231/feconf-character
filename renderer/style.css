@@ -43,7 +43,7 @@ body {
 /* 캐릭터 래퍼 — 상태별 움직임(transform)은 JS 가 매 프레임 적용 */
 #char {
   position: relative;
-  width: 301px; /* 달팽이:말풍선 = 7:4 (말풍선 172 기준 172×7/4) */
+  width: 181px; /* 이전 301 대비 40% 축소 */
   display: flex;
   justify-content: center;
   z-index: 2;
@@ -52,7 +52,7 @@ body {
 }
 
 #cat {
-  width: 301px; /* 7:4 비율 */
+  width: 181px; /* 40% 축소 */
   height: auto;
   -webkit-app-region: no-drag;
   cursor: grab;
@@ -107,9 +107,9 @@ body {
 }
 
 #shadow {
-  width: 154px;
-  height: 16px;
-  margin-top: -12px;
+  width: 92px;
+  height: 12px;
+  margin-top: -10px;
   border-radius: 50%;
   background: radial-gradient(
     ellipse at center,
@@ -183,6 +183,80 @@ body {
 #bubble.level-urgent {
   animation: pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
     shake 0.5s ease 0.28s 2;
+}
+
+/* -------- 클릭 팝업 말풍선 (같은 Frame1 모양 · 창 안 오버레이) -------- */
+#click-bubble {
+  position: fixed;
+  top: 16px;
+  right: 8px;
+  width: 172px;
+  z-index: 6;
+  transform-origin: 18% 88%;
+  animation: pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#click-bubble .bubble-shape {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.22));
+}
+#click-bubble .bubble-body,
+#click-bubble .bubble-dot {
+  fill: #ffffff;
+  stroke: #141116;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+#click-content {
+  position: absolute;
+  top: 5%;
+  left: 10%;
+  right: 10%;
+  bottom: 26%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+  font-family: "MonaS12", "AppleGothic", sans-serif;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+#cb-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #2f6bff;
+}
+#cb-dday {
+  font-size: 22px;
+  font-weight: 700;
+  color: #141116;
+  line-height: 1;
+  letter-spacing: 1px;
+}
+#cb-discord {
+  margin-top: 4px;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: #ffffff;
+  background: #5865f2;
+  border: 2px solid #141116;
+  border-radius: 6px;
+  padding: 4px 7px;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+  box-shadow: 0 2px 0 #141116;
+}
+#cb-discord:hover {
+  background: #4752c4;
+}
+#cb-discord:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 #141116;
 }
 
 .hidden {

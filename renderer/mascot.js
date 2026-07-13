@@ -150,6 +150,56 @@ if (window.mascot) {
 }
 
 // ===========================================================================
+// 클릭 팝업 — Frame1 말풍선 안에 D-day + 디스코드 바로가기 (창 안 오버레이)
+// ===========================================================================
+const clickBubble = document.getElementById('click-bubble');
+const cbDday = document.getElementById('cb-dday');
+const cbDiscord = document.getElementById('cb-discord');
+
+function startOfDay(ts) {
+  const d = new Date(ts);
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+}
+function ddayText(conf, now) {
+  const s = conf.startDate || conf.date;
+  if (!s) return 'D-–';
+  const diff = Math.round((startOfDay(new Date(s).getTime()) - startOfDay(now)) / 86400000);
+  if (diff > 0) return 'D-' + diff;
+  if (diff === 0) return 'D-DAY';
+  return '종료';
+}
+async function toggleClickBubble() {
+  if (!clickBubble.classList.contains('hidden')) {
+    clickBubble.classList.add('hidden');
+    return;
+  }
+  let data = { conference: {}, now: Date.now() };
+  if (window.mascot && window.mascot.guideGetData) {
+    try {
+      const d = await window.mascot.guideGetData();
+      if (d) data = d;
+    } catch (_) {}
+  }
+  const conf = data.conference || {};
+  cbDday.textContent = ddayText(conf, data.now || Date.now());
+  const url = conf.discord && conf.discord.url;
+  if (url) {
+    cbDiscord.style.display = '';
+    cbDiscord.onclick = (e) => {
+      e.stopPropagation();
+      if (window.mascot && window.mascot.openExternal) window.mascot.openExternal(url);
+    };
+  } else {
+    cbDiscord.style.display = 'none';
+  }
+  clickBubble.classList.remove('hidden');
+  void clickBubble.offsetWidth; // pop 애니메이션 재생
+}
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') clickBubble.classList.add('hidden');
+});
+
+// ===========================================================================
 // 드래그 이동 & 클릭
 // ===========================================================================
 let dragging = false;
@@ -172,9 +222,10 @@ window.addEventListener('mousemove', (e) => {
 });
 window.addEventListener('mouseup', () => {
   if (dragging && moved < 4) {
-    // 클릭 → 인사
+    // 클릭 → 인사 + 팝업 토글
     setTemp('happy', 1800);
     if (baseState === 'sleeping') baseState = 'idle';
+    toggleClickBubble();
     if (window.mascot) window.mascot.click();
   }
   dragging = false;

@@ -22,8 +22,8 @@ const http = require('http');
 const DEFAULT_CONFIG = {
   port: 7842,          // 웹훅 HTTP 서버 포트
   token: '',           // 설정 시 웹훅 요청에 x-token 헤더 필요 (빈 값이면 인증 없음)
-  width: 360,
-  height: 320,
+  width: 300,
+  height: 260,
   margin: 24,          // 화면 모서리로부터 여백
   corner: 'bottom-right', // bottom-right | bottom-left | top-right | top-left
   idleSleepMs: 90000,  // 이 시간 동안 이벤트 없으면 잠자기
@@ -635,8 +635,8 @@ ipcMain.on('mascot:drag', (_e, { dx, dy }) => {
   win.setPosition(x + Math.round(dx), y + Math.round(dy));
 });
 ipcMain.on('mascot:click', () => {
+  // 클릭 팝업은 렌더러가 창 안 오버레이로 처리 (드래그 시 함께 이동)
   handleEvent('state', { state: 'happy', ttl: 1500 });
-  toggleGuide();
 });
 
 ipcMain.handle('guide:getData', () => guideData());
