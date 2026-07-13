@@ -155,6 +155,13 @@ if (window.mascot) {
 const clickBubble = document.getElementById('click-bubble');
 const cbDday = document.getElementById('cb-dday');
 const cbDiscord = document.getElementById('cb-discord');
+const cbClose = document.getElementById('cb-close');
+if (cbClose) {
+  cbClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    clickBubble.classList.add('hidden');
+  });
+}
 
 function startOfDay(ts) {
   const d = new Date(ts);

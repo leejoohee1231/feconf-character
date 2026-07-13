@@ -236,27 +236,51 @@ body {
   line-height: 1;
   letter-spacing: 1px;
 }
+/* 윤곽선 없는 심플 fill 버튼 */
 #cb-discord {
-  margin-top: 4px;
+  margin-top: 5px;
   font-family: inherit;
   font-size: 9px;
   font-weight: 700;
   white-space: nowrap;
   color: #ffffff;
   background: #5865f2;
-  border: 2px solid #141116;
-  border-radius: 6px;
-  padding: 4px 7px;
+  border: none;
+  border-radius: 7px;
+  padding: 6px 11px;
   cursor: pointer;
   -webkit-app-region: no-drag;
-  box-shadow: 0 2px 0 #141116;
 }
 #cb-discord:hover {
   background: #4752c4;
 }
 #cb-discord:active {
-  transform: translateY(2px);
-  box-shadow: 0 0 0 #141116;
+  transform: translateY(1px);
+}
+
+/* 말풍선 오른쪽 바깥의 작은 닫기 버튼 (팝업 열려 있을 때 항상 노출) */
+#cb-close {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  line-height: 1;
+  color: #ffffff;
+  background: #141116;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+  z-index: 3;
+  padding: 0;
+}
+#cb-close:hover {
+  background: #3a3a3a;
 }
 
 .hidden {
