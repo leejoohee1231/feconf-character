@@ -33,11 +33,10 @@ body {
 #stage {
   position: absolute;
   bottom: 8px;
-  left: 0;
-  right: 0;
+  left: 10px; /* 달팽이를 좌하단으로 */
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-end;
 }
 
@@ -125,8 +124,8 @@ body {
 /* -------- 말풍선 (업로드 SVG 모양 · 달팽이 우측 위 · Gulim 텍스트) -------- */
 #bubble {
   position: fixed;
-  top: 44px; /* 아래로 내려 달팽이(꼬리)와 가깝게 */
-  right: 6px;
+  top: 16px; /* 우상단 */
+  right: 8px;
   width: 172px;
   z-index: 5;
   transform-origin: 18% 88%; /* 꼬리(좌하단)에서 팝업 */

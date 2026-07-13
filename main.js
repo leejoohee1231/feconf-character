@@ -22,7 +22,7 @@ const http = require('http');
 const DEFAULT_CONFIG = {
   port: 7842,          // 웹훅 HTTP 서버 포트
   token: '',           // 설정 시 웹훅 요청에 x-token 헤더 필요 (빈 값이면 인증 없음)
-  width: 240,
+  width: 360,
   height: 300,
   margin: 24,          // 화면 모서리로부터 여백
   corner: 'bottom-right', // bottom-right | bottom-left | top-right | top-left
