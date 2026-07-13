@@ -74,9 +74,10 @@ function applyMotion(state, t) {
     sx = Math.sin(t * 3) * 2;
     ty = Math.abs(Math.sin(t * 6)) * 1.5;
   } else {
-    // idle
-    ty = Math.sin(t * 1.6) * 2.5;
-    rot = Math.sin(t * 1.1) * 1.2;
+    // idle — 달팽이처럼 좌우로 아주 느리게 왔다 갔다 (+ 진행방향으로 살짝 기울임)
+    sx = Math.sin(t * 0.5) * 7;
+    rot = Math.cos(t * 0.5) * 1.6;
+    ty = Math.sin(t * 1.6) * 2;
   }
 
   charEl.style.transform = `translate(${sx.toFixed(2)}px, ${ty.toFixed(2)}px) rotate(${rot.toFixed(
