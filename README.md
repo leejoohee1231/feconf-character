@@ -226,3 +226,7 @@ export default {
 안내 패널 헤더 제목/부제는 `guideTitle` · `guideSubtitle` 로 바꿀 수 있어요.
 
 `token` 을 넣으면 웹훅 요청에 `x-token` 헤더(또는 `?token=`)가 필요합니다.
+
+## 크레딧
+
+- 말풍선 텍스트 폰트: **Mona (MonaS12)** by [Monad ABXY](https://github.com/MonadABXY/mona-font) — SIL Open Font License 1.1 ([라이선스](renderer/fonts/MonaS-OFL-LICENSE.txt), 앱에 번들)
