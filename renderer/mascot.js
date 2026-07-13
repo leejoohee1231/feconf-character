@@ -105,6 +105,17 @@ let bubbleTimer = null;
 const LEVEL_ICON = { info: '💬', success: '✅', warn: '⚠️', urgent: '🚨' };
 
 function showBubble({ title, message, level }) {
+  // D-day 클릭 팝업이 떠 있으면 먼저 빠르게 닫고, 사라진 뒤 상태메시지 표시
+  if (clickBubble && !clickBubble.classList.contains('hidden')) {
+    clickBubble.classList.add('closing');
+    setTimeout(() => {
+      clickBubble.classList.add('hidden');
+      clickBubble.classList.remove('closing');
+      showBubble({ title, message, level });
+    }, 160);
+    return;
+  }
+
   bubble.className = 'level-' + (level || 'info');
   // 제목을 쓴 그대로 표시 (이모지는 문구에 직접 넣기)
   bTitle.textContent = title || '알림';

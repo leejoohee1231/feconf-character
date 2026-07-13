@@ -283,6 +283,18 @@ body {
   background: #3a3a3a;
 }
 
+/* 상태메시지가 뜰 때 D-day 팝업이 빠르게 사라지는 애니메이션 */
+#click-bubble.closing {
+  animation: popout 0.15s ease forwards;
+  pointer-events: none;
+}
+@keyframes popout {
+  to {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+
 .hidden {
   display: none !important;
 }
