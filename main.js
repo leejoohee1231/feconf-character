@@ -29,8 +29,8 @@ const DEFAULT_CONFIG = {
   idleSleepMs: 90000,  // 이 시간 동안 이벤트 없으면 잠자기
   guideTitle: '컨퍼런스 안내',
   guideSubtitle: '오늘의 세션',
-  guideWidth: 320,
-  guideHeight: 440,
+  guideWidth: 360,   // 클릭 시 뜨는 스타버스트 팝업 크기
+  guideHeight: 260,
 };
 
 function loadConfig() {
@@ -138,7 +138,7 @@ function createGuideWindow() {
   });
   guideWin.setAlwaysOnTop(true, 'screen-saver');
   guideWin.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-  guideWin.loadFile(path.join(__dirname, 'renderer', 'guide.html'));
+  guideWin.loadFile(path.join(__dirname, 'renderer', 'burst.html'));
 
   // 닫기 대신 숨김 (앱은 계속 상주)
   guideWin.on('close', (e) => {
