@@ -53,7 +53,7 @@ m.building(name);
 const child = spawn(cmd[0], cmd.slice(1), { stdio: 'inherit', shell: process.platform === 'win32' });
 
 child.on('error', (err) => {
-  m.fail('실행 실패', `${cmd[0]}: ${err.message}`);
+  m.fail('실행 Fail...', `${cmd[0]}: ${err.message}`);
   console.error(`[mascot-watch] 실행 실패: ${err.message}`);
   process.exit(1);
 });
@@ -61,9 +61,9 @@ child.on('error', (err) => {
 child.on('exit', (code, signal) => {
   const dur = secs();
   if (code === 0) {
-    m.success('성공', `${name} · ${dur}`);
+    m.success('⭐️ 야호~성공~🎵⭐️', `${name} · ${dur}`);
   } else {
-    m.fail('실패', `${name} · 종료코드 ${code != null ? code : signal} · ${dur}`);
+    m.fail('작업 Fail...', `${name} · 종료코드 ${code != null ? code : signal} · ${dur}`);
   }
   // 전송이 나갈 짧은 여유 후 원래 종료 코드로 종료
   setTimeout(() => process.exit(code == null ? 1 : code), 120);

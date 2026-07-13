@@ -45,7 +45,7 @@ function mascotPlugin(options = {}) {
     buildEnd(err) {
       if (isBuild && err) {
         hadError = true;
-        return m.fail('ㅂ ㅣㄹ드 Fail...', String((err && err.message) || err).split('\n')[0].slice(0, 120));
+        return m.fail('빌드 Fail...', String((err && err.message) || err).split('\n')[0].slice(0, 120));
       }
     },
 
