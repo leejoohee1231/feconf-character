@@ -110,6 +110,46 @@ export default {
 > `POST /notify {"level":"success"}` 로 성공, `{"level":"urgent"}` 로 실패를 보내면 됩니다.
 > 재사용 헬퍼는 [integrations/mascot-client.js](integrations/mascot-client.js) 참고.
 
+## 🤖 Claude Code 연동 — 작업 끝나면 달팽이가 알려줌
+
+[Claude Code](https://claude.com/claude-code)의 **훅**에 마스코트를 연결하면, Claude Code가 작업을 마치거나 확인을 기다릴 때 달팽이가 대신 알려줘요. (긴 작업 돌려놓고 딴짓하다 놓치는 걸 방지)
+
+**설정 방법** — `~/.claude/settings.json`(전역) 또는 프로젝트의 `.claude/settings.json` 에 `hooks` 를 추가하세요. 이미 다른 설정이 있으면 **`hooks` 키만 병합**하면 됩니다.
+
+```jsonc
+{
+  "hooks": {
+    // 작업 완료 → 달팽이 팔짝 (초록 말풍선)
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -X POST localhost:7842/notify -H 'Content-Type: application/json' -d '{\"title\":\"작업 완료\",\"message\":\"Claude Code가 작업을 마쳤어요\",\"level\":\"success\"}' >/dev/null 2>&1 || true"
+          }
+        ]
+      }
+    ],
+    // 권한/입력 대기 → 달팽이 놀람 (노란 말풍선)
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -s -X POST localhost:7842/notify -H 'Content-Type: application/json' -d '{\"title\":\"확인이 필요해요\",\"message\":\"Claude Code가 입력을 기다리고 있어요\",\"level\":\"warn\"}' >/dev/null 2>&1 || true"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+- 앱이 꺼져 있으면 `|| true` 로 조용히 무시돼요 → **Claude Code 작업을 절대 막지 않아요.**
+- 포트를 바꿨거나 토큰을 쓰면 URL·헤더를 맞춰주세요 (`-H "x-token: 토큰"`).
+- 설정 후 바로 적용 안 되면 Claude Code에서 `/hooks` 를 한 번 열거나 재시작하세요. 훅 관리·삭제도 `/hooks` 에서 할 수 있어요.
+- 다른 CLI·CI·스크립트도 똑같이 `POST /notify` 한 줄이면 연동됩니다.
+
 ## 타이핑/코딩에 반응시키기
 
 에디터/터미널에서 활동이 감지될 때 `/activity`를 호출하면 됩니다. 예:
