@@ -43,7 +43,7 @@ body {
 /* 캐릭터 래퍼 — 상태별 움직임(transform)은 JS 가 매 프레임 적용 */
 #char {
   position: relative;
-  width: 188px;
+  width: 113px; /* 기존 188 대비 40% 축소 */
   display: flex;
   justify-content: center;
   z-index: 2;
@@ -52,7 +52,7 @@ body {
 }
 
 #cat {
-  width: 188px;
+  width: 113px; /* 40% 축소 */
   height: auto;
   -webkit-app-region: no-drag;
   cursor: grab;
@@ -107,9 +107,9 @@ body {
 }
 
 #shadow {
-  width: 96px;
-  height: 14px;
-  margin-top: -12px;
+  width: 58px;
+  height: 10px;
+  margin-top: -8px;
   border-radius: 50%;
   background: radial-gradient(
     ellipse at center,
@@ -124,7 +124,7 @@ body {
 /* -------- 말풍선 (업로드 SVG 모양 · 달팽이 우측 위 · Gulim 텍스트) -------- */
 #bubble {
   position: fixed;
-  top: 16px; /* 우상단 */
+  top: 18px; /* 우상단, 좁힌 창에서 달팽이와 가깝게 */
   right: 8px;
   width: 172px;
   z-index: 5;
