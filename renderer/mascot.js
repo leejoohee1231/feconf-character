@@ -258,3 +258,22 @@ window.addEventListener('mouseup', () => {
   }
   dragging = false;
 });
+
+// ===========================================================================
+// 클릭 통과 — 달팽이/말풍선 위에서만 마우스를 받고, 그 밖은 뒤쪽 창으로 통과
+// ===========================================================================
+let ignoring = null;
+function isInteractiveAt(x, y) {
+  const el = document.elementFromPoint(x, y);
+  return !!(el && el.closest && el.closest('#char, #bubble, #click-bubble'));
+}
+function updateClickThrough(x, y) {
+  if (dragging) return; // 드래그 중엔 계속 받기
+  const shouldIgnore = !isInteractiveAt(x, y);
+  if (shouldIgnore === ignoring) return;
+  ignoring = shouldIgnore;
+  if (window.mascot && window.mascot.setIgnoreMouse) window.mascot.setIgnoreMouse(shouldIgnore);
+}
+window.addEventListener('mousemove', (e) => updateClickThrough(e.clientX, e.clientY));
+// 시작 시엔 클릭 통과(뒤쪽 창 사용 가능), 커서가 올라오면 forward 로 감지해 켬
+if (window.mascot && window.mascot.setIgnoreMouse) window.mascot.setIgnoreMouse(true);

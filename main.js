@@ -634,6 +634,10 @@ ipcMain.on('mascot:drag', (_e, { dx, dy }) => {
   const [x, y] = win.getPosition();
   win.setPosition(x + Math.round(dx), y + Math.round(dy));
 });
+// 클릭 통과 토글: 달팽이/말풍선 밖은 뒤쪽 창으로 클릭이 지나가게
+ipcMain.on('mascot:setIgnore', (_e, ignore) => {
+  if (win && !win.isDestroyed()) win.setIgnoreMouseEvents(!!ignore, { forward: true });
+});
 ipcMain.on('mascot:click', () => {
   // 클릭 팝업은 렌더러가 창 안 오버레이로 처리 (드래그 시 함께 이동)
   handleEvent('state', { state: 'happy', ttl: 1500 });

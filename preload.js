@@ -12,6 +12,8 @@ contextBridge.exposeInMainWorld('mascot', {
   getConfig: () => ipcRenderer.invoke('mascot:getConfig'),
   drag: (dx, dy) => ipcRenderer.send('mascot:drag', { dx, dy }),
   click: () => ipcRenderer.send('mascot:click'),
+  // true면 클릭이 뒤쪽 창으로 통과 (달팽이/말풍선 위에서만 false)
+  setIgnoreMouse: (ignore) => ipcRenderer.send('mascot:setIgnore', ignore),
 
   // 안내 패널
   guideGetData: () => ipcRenderer.invoke('guide:getData'),
