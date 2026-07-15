@@ -187,11 +187,11 @@ function setDdayContent(conf, now) {
   }
   const diff = Math.round((startOfDay(new Date(s).getTime()) - startOfDay(now)) / 86400000);
   if (diff > 0) {
-    cbDday.innerHTML = '행사까지 <span class="dday-num">D-' + diff + '</span>';
+    cbDday.innerHTML = 'FECONF까지 <span class="dday-num">D-' + diff + '</span>';
   } else if (diff === 0) {
-    cbDday.innerHTML = '행사까지 <span class="dday-num">D-DAY</span>';
+    cbDday.innerHTML = 'FECONF까지 <span class="dday-num">D-DAY</span>';
   } else {
-    cbDday.textContent = '행사 종료ㅠㅠ';
+    cbDday.textContent = 'FECONF 종료ㅠㅠ';
   }
 }
 async function toggleClickBubble() {
